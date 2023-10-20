@@ -1,7 +1,8 @@
-const express = require("express");
+
 const cors = require("cors");
+const express = require('express');
 const app= express();
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const port = process.env.PORT||8888;
 
 app.use(cors());
@@ -31,7 +32,7 @@ async function run() {
     await client.connect();
     const ZTechDatabase=client.db("ZTechDatabase");
     const AllProducts=ZTechDatabase.collection("AllProducts");
-    const CartProducts=ZTechDatabase.collection("CartProducts");
+    const Cart=ZTechDatabase.collection("Cart");
 
 
     app.post("/AllProducts", async (req, res)=> 
@@ -45,7 +46,7 @@ async function run() {
     app.post("/MyCart", async (req, res)=> 
     {
         const Product= req.body;
-        const result= await CartProducts.insertOne(Product);
+        const result= await Cart.insertOne(Product);
         res.send(result);
         console.log(Product);
 
@@ -55,7 +56,7 @@ async function run() {
 
     app.get("/MyCart", async(req,res)=>
     {
-      const cursor = CartProducts.find();
+      const cursor = Cart.find();
       const result=await cursor.toArray();
       res.send(result);
     });
@@ -66,6 +67,74 @@ async function run() {
       const result=await cursor.toArray();
       res.send(result);
     });
+
+    // app.delete("/MyCart/:id", async(req, res)=>
+    // {  
+
+    //   console.log(req.params)
+    //   console.log(req.params.id)
+    //      const id = req.params.id;
+    //      const query={_id: new ObjectId(id)};
+    //      const result= await Cart.deleteOne(query);
+
+    //      res.send(result);
+    //      console.log(query);
+    // });
+
+    app.delete('/MyCart/:id', async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const result = await Cart.deleteOne(filter);
+      res.send(result);
+      
+  })
+
+
+  app.get("/AllProducts/:id", async(req,res)=>
+  {
+    const id=req.params.id;
+     const filter = { _id: new ObjectId(id) };
+     const result = await AllProducts.findOne(filter);
+      res.send(result);
+  })
+
+  app.get("/AllProducts/Products/Apple", async(req,res)=>
+  {
+    console.log(req.body)
+   
+     console.log(AllProducts)
+     const result = await AllProducts.find({ brandName: "Apple" });
+      res.send(result);
+  })
+
+
+  app.put("/AllProducts/:id", async(req,res)=>
+  {
+    const id=req.params.id;
+    const filter = { _id: new ObjectId(id) };
+    const options = { upsert: true };
+            const updatedProduct = req.body;
+
+            const product = {
+                $set: {
+                  brandName: updatedProduct.brandName,
+                  productName: updatedProduct.productName,
+                    productType: updatedProduct.productType,
+                    price: updatedProduct.price,
+                    imageUrl: updatedProduct.imageUrl,
+                    rating: updatedProduct.rating,
+                    description: updatedProduct.description
+                }
+            }
+            console.log(product)
+
+            const result = await AllProducts.updateOne(filter, product, options);
+            res.send(result);
+  }
+  )
+
+
+
 
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
