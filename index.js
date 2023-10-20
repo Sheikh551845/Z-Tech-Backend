@@ -1,4 +1,5 @@
 
+require('dotenv').config()
 const cors = require("cors");
 const express = require('express');
 const app= express();
@@ -8,13 +9,8 @@ const port = process.env.PORT||8888;
 app.use(cors());
 app.use(express.json());
 
-// sheikh551845
-// LIi9iunM1WtePj3K
 
-
-
-// const uri = "mongodb+srv://sheikh551845:LIi9iunM1WtePj3K@cluster0.4kc4xcj.mongodb.net/?retryWrites=true&w=majority";
-const uri = "mongodb://sheikh551845:LIi9iunM1WtePj3K@ac-dzczvnk-shard-00-00.4kc4xcj.mongodb.net:27017,ac-dzczvnk-shard-00-01.4kc4xcj.mongodb.net:27017,ac-dzczvnk-shard-00-02.4kc4xcj.mongodb.net:27017/?ssl=true&replicaSet=atlas-dehx9a-shard-0&authSource=admin&retryWrites=true&w=majority";
+const uri = `mongodb://${process.env.DB_User}:${process.env.Use_Password}@ac-dzczvnk-shard-00-00.4kc4xcj.mongodb.net:27017,ac-dzczvnk-shard-00-01.4kc4xcj.mongodb.net:27017,ac-dzczvnk-shard-00-02.4kc4xcj.mongodb.net:27017/?ssl=true&replicaSet=atlas-dehx9a-shard-0&authSource=admin&retryWrites=true&w=majority`;
 
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -98,14 +94,7 @@ async function run() {
       res.send(result);
   })
 
-  app.get("/AllProducts/Products/Apple", async(req,res)=>
-  {
-    console.log(req.body)
-   
-     console.log(AllProducts)
-     const result = await AllProducts.find({ brandName: "Apple" });
-      res.send(result);
-  })
+
 
 
   app.put("/AllProducts/:id", async(req,res)=>
